@@ -40,9 +40,12 @@ const userSchema = new Schema({
   meta: {
     type: Object,
     required: true,
-    default: {},
+    default: {
+      tokens: {},
+      referredBy: null
+    },
   },
-});
+}, { minimize: false });
 
 // Virtuals
 userSchema.virtual('name').get(function(){
@@ -68,9 +71,7 @@ userSchema.methods.validatePassword = function(rawPassword){
 // Middleware
 userSchema.pre('save', async function(){
 
-  if(!this.isModified('password')){
-    return next();
-  }
+  if(!this.isModified('password')) return;
 
   // hash and set password
   const passwordHash = await accountHelpers.hashPassword(this.password);

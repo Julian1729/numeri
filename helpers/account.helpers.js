@@ -5,12 +5,12 @@ const bcrypt = require('bcrypt');
  * @param  {String}  password Raw password
  * @return {mixed}   Array of password errors or true
  */
-exports.validatePassword = password => {
+exports.validatePassword = (password = '') => {
 
   const errors = [];
 
   // must be longer than 7 characters
-  if(password.length < 7){
+  if(password === '' || password.length < 7){
     errors.push('must be longer than 7 characters');
   }
 

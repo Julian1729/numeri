@@ -9,12 +9,22 @@ router.get('/', (req, res) => {
   res.send('Numeri API');
 });
 
-router.post('/checkit', checkAuthentication)
+/**
+ * ======================
+ * Authentication
+ * ======================
+ */
+router.post('/checkit', accountController.checkAuthentication);
 
 router.post('/login', passport.authenticate('local'), accountController.login);
 
-router.post('/register', accountController.register)
+router.post('/register', accountController.register);
 
-// router.post('/reset-password', accountController.resetPassword)
+router.post('/logout', accountController.logout);
+
+router.post('/forgot-password', accountController.forgotPassword);
+
+router.post('/reset-password/:userId/:token', accountController.resetPassword);
+
 
 module.exports = router;

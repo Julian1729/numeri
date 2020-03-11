@@ -6,7 +6,6 @@ module.exports = [
     email: 'email@example.com',
     password: 'ThisGoodPass123@',
     refCode: '45xyz89',
-    meta: {},
   },
 
   {
@@ -15,7 +14,6 @@ module.exports = [
     email: 'james@example.com',
     password: 'JamesJackson123$',
     refCode: 'cvb784r',
-    meta: {},
   }
 
 ]

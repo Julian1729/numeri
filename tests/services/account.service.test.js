@@ -1,7 +1,9 @@
+const _ = require('lodash');
 const chai = require('chai');
 const asserttype = require('chai-asserttype');
 chai.use(asserttype);
 const expect = chai.expect;
+const { ObjectId } = require('mongodb');
 
 const errors = require('../../Errors');
 const User = require('../../models/User.model');
@@ -31,7 +33,7 @@ describe('Account Services', () => {
     let seedUser = null;
     beforeEach(async () => {
       // seed existing user into db to satisfy refCode search
-      seedUser = await User.create(users[0]);
+      seedUser = await User.create(_.clone(users[0]));
     });
 
     it('registers and returns valid user', done => {
@@ -49,6 +51,7 @@ describe('Account Services', () => {
           expect(user).to.exist;
           expect(user).to.have.property('id');
           expect(user).to.have.property('refCode');
+          expect(user.meta).to.have.property('tokens');
           expect(user.refCode).to.be.string();
           // should not have raw password
           expect(user.password).to.not.equal(testPass);
@@ -141,20 +144,114 @@ describe('Account Services', () => {
   describe('authenticateUser', () => {
 
     let seedUser = null;
-    const rawSeedUserPassword = users[0].password;
+    const rawSeedUserPassword = _.clone(users[0]).password;
     beforeEach(async () => {
       // seed existing user into db to satisfy refCode search
-      seedUser = await accountServices.registerUser(users[0], null, true);
+      seedUser = await accountServices.registerUser(_.clone(users[0]), null, true);
     });
 
     it('finds user with valid credentials', (done) => {
 
-      accountServices.authenticateUser(users[0].email, rawSeedUserPassword)
+      accountServices.authenticateUser(_.clone(users[0]).email, rawSeedUserPassword)
         .then(user => {
           expect(user).to.have.property('id');
           done();
         })
         .catch(e => done(e));
+
+    });
+
+  });
+
+  describe('setForgotPasswordToken', () => {
+
+    let seedUser = null;
+    beforeEach(async () => {
+      // seed existing user into db to satisfy refCode search
+      // use save to call save middleware??
+      seedUser = await new User(_.clone(users[0])).save();
+    });
+
+    it('finds user and sets token', async () => {
+
+      const theToken = await accountServices.setForgotPasswordToken(seedUser.email);
+      expect(theToken).to.exist;
+      // find again and verify it was changed
+      const updatedUser = await User.findById(seedUser.id);
+      expect(updatedUser.meta.tokens).to.have.property('passwordReset');
+
+    });
+
+    it('should not find user and throw InvalidCredentials', async () => {
+
+      try {
+
+        await accountServices.setForgotPasswordToken('invalidEmail@example.com');
+        throw new Error('Should not have found user');
+
+      } catch (e) {
+
+        expect(e instanceof errors.InvalidCredentials).to.be.true;
+
+      }
+
+    });
+
+  });
+
+  describe('resetPassword', () => {
+
+    let seedUser = null;
+    const token = 'randomTokenXX';
+    beforeEach(async () => {
+      const seedUserData = _.clone(users[0]);
+      seedUserData.meta = {
+        tokens: {
+          resetPassword: token
+        }
+      };
+      seedUser = await new User(seedUserData).save();
+    });
+
+    it('should reset password, hash on save, and delete token', async () => {
+
+      const newUser = await accountServices.resetPassword(seedUser.id, token, 'ThisNewPass123$');
+      expect(seedUser.password).to.not.equal(newUser.password);
+      expect(newUser.meta.tokens).to.not.have.property('resetPassword');
+
+    });
+
+
+    it('throws InsecurePassword', async () => {
+
+      try {
+        const newUser = await accountServices.resetPassword(seedUser.id, token, 'ThisNewPass');
+        throw new Error('should have thrown InsecurePassword error');
+      } catch (e) {
+        expect(e instanceof errors.InsecurePassword).to.be.true;
+      }
+
+    });
+
+    it('throws UserNotFound', async () => {
+
+      try {
+        const newUser = await accountServices.resetPassword(new ObjectId(), token, 'ThisNewPass');
+        throw new Error('should have thrown UserNotFound error');
+      } catch (e) {
+        expect(e instanceof errors.UserNotFound).to.be.true;
+      }
+
+    });
+
+    it('throws InvalidToken', async () => {
+
+      try {
+        const newUser = await accountServices.resetPassword(seedUser.id, 'notgootoekn', 'ThisNewPass123$');
+        throw new Error('should have thrown InvalidToken error');
+      } catch (e) {
+        expect(e instanceof errors.InvalidToken).to.be.true;
+      }
 
     });
 

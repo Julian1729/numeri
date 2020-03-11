@@ -44,9 +44,29 @@ class InvalidCredentials extends Error {
 
 }
 
+class UserNotFound extends Error {
+
+    constructor(message){
+        super(message);
+        this.name = "UserNotFound"
+    }
+
+}
+
+class InvalidToken extends Error {
+
+    constructor(message){
+        super(message);
+        this.name = "InvalidToken"
+    }
+
+}
+
 module.exports = {
   InsecurePassword,
   InvalidReferral,
   EmailAlreadyExists,
   InvalidCredentials,
+  UserNotFound,
+  InvalidToken,
 }

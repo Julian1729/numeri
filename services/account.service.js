@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt');
+const randtoken = require('rand-token');
 
 const User = require('../models/User.model');
 const { accountHelpers } = require('../helpers');
-const { InsecurePassword, InvalidReferral, EmailAlreadyExists, InvalidCredentials } = require('../Errors');
+const { InsecurePassword, InvalidReferral, EmailAlreadyExists, InvalidCredentials, UserNotFound, InvalidToken } = require('../Errors');
 
 /**
  * Register a new user. Note, this function does not validate
@@ -18,8 +19,11 @@ exports.registerUser = async (userObject, referralCode, bypassReferral = false) 
     throw new InsecurePassword(passwordErrors);
   }
 
-  // create meta object
-  userObject.meta = {};
+  // init meta object with defaults
+  userObject.meta = {
+    referredBy: null,
+    tokens: {},
+  };
 
   // OPTIMIZE: run referall check and password hash in parallel
   // verify ref code
@@ -67,3 +71,61 @@ exports.authenticateUser = async (email, rawPassword) => {
   return user;
 
 }
+
+exports.setForgotPasswordToken = async email => {
+
+  const user = await User.findOne({email});
+
+  if(!user){
+    throw new InvalidCredentials(`User with email: ${email} does not exist`);
+  }
+
+  // generate and attach token to user meta object
+  const token = randtoken.generate(16);
+
+  user.meta.tokens.passwordReset = token;
+  user.markModified('meta');
+
+  await user.save();
+
+  return user.meta.tokens.passwordReset;
+
+}
+
+exports.resetPassword = async (userId, token, password) => {
+
+  const user = await User.findById(userId);
+
+  if(!user){
+    throw new UserNotFound(`User with id ${userId} not found`);
+  }
+
+  // OPTIMIZE: token not set and token not found
+  // should be seperated to provide better errors
+  // and more details if someone tried to reset a password
+  // on someones account
+
+  // verify token
+  if(!user.meta.tokens.passwordReset || user.meta.tokens.passwordReset !== token){
+    throw new InvalidToken(`Token ${token} not found`);
+  }
+
+  // check new password meets requirements
+  const passwordErrors = accountHelpers.validatePassword(password);
+
+  if(passwordErrors.length){
+    throw new InsecurePassword(passwordErrors);
+  }
+
+  // set new password
+  user.password = password;
+
+  // clear token
+  delete user.meta.tokens.resetPassword;
+  user.markModified('meta');
+
+  await user.save();
+
+  return user;
+
+};

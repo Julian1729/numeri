@@ -2,8 +2,27 @@ const errors = require('../Errors');
 const { accountServices } = require('../services');
 const registrationValidator = require('../helpers/validators/registration.validator');
 
+const validate = require('../helpers/validators/validatorBase');
+
+exports.checkAuthentication = (req, res) => {
+
+  if(!req.isAuthenticated()){
+    return res.send('not logged in')
+  }
+
+  return res.send('logged in here');
+
+};
+
 exports.login = (req, res) => {
 
+  return res.ApiResponse().send();
+
+}
+
+exports.logout = (req, res) => {
+
+  req.logout();
   return res.ApiResponse().send();
 
 }
@@ -37,17 +56,18 @@ exports.register = async (req, res, next) => {
     // handle insecure password error
     if(e instanceof errors.InsecurePassword){
       return ApiResponse.error('INSECURE_PASSWORD').send();
-    }
 
-    // handle an invalid referral code
-    if(e instanceof errors.InvalidReferral){
+    }else if (e instanceof errors.InvalidReferral){
+      // handle an invalid referral code
       console.log(e);
       return ApiResponse.error('INVALID_REFERRAL_CODE', null, { code: e.refCode }).send();
-    }
 
-    // handle existing email
-    if(e instanceof errors.EmailAlreadyExists){
+    }else if(e instanceof errors.EmailAlreadyExists){
+      // handle existing email
       return ApiResponse.error('EMAIL_ALREADY_EXISTS').send();
+
+    }else{
+      return next(e);
     }
 
   }
@@ -60,6 +80,97 @@ exports.register = async (req, res, next) => {
     }
 
     return ApiResponse.data('redirect', '/dashboard').send();
+
+  });
+
+};
+
+exports.forgotPassword = async (req, res, next) => {
+
+  const email = req.body.email;
+
+  // validate email
+  const emailErrors = validate(email, {
+    presence: true,
+    email: true,
+  });
+
+  if(emailErrors){
+    return res.ApiResponse().error('', null, emailErrors).send();
+  }
+
+  let token = null;
+
+  try {
+
+    token = await accountServices.setForgotPasswordToken(email);
+
+  } catch (e) {
+
+    if(e instanceof errors.InvalidCredentials){
+      return res.ApiResponse()
+        .error('EMAIL_NOT_REGISTERED', `User with email "${email}" not found`)
+        .send();
+    }else{
+      return next(e);
+    }
+
+  }
+
+  // OPTIMIZE: send user email with link
+
+  // send back token
+  return res.ApiResponse().data('token', token).send();
+
+};
+
+exports.resetPassword = async (req, res, next) => {
+
+  const token = req.params.token;
+  const userId = req.params.userId;
+  const password = req.body.password;
+
+  let user = null;
+
+  try {
+
+    user = await accountServices.resetPassword(userId, token, password);
+
+  } catch (e) {
+
+    console.log(e);
+    if(e instanceof errors.InsecurePassword){
+      return res.ApiResponse()
+        .error('INSECURE_PASSWORD', null, e.getErrors())
+        .send();
+    }else if (e instanceof errors.UserNotFound){
+      // OPTIMIZE: send 401 here?
+      return res.ApiResponse()
+        .error('USER_NOT_FOUND')
+        .send();
+    }else if(e instanceof errors.InvalidToken){
+      return res.ApiResponse()
+        .error('INVALID_TOKEN', null, {token})
+        .send();
+    }else{
+      return next(e);
+    }
+
+  }
+
+  // login w/ passport helper function
+  req.login(user, err => {
+
+    if(err){
+      return next(err);
+    }
+
+    // OPTIMIZE: add flash message
+    // to be displayed after redirect
+
+    return res.ApiResponse()
+      .data('redirect', '/dashboard')
+      .send();
 
   });
 

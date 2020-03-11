@@ -40,8 +40,9 @@ describe('User Model', () => {
         expect(user.email).to.eql('email@example.com');
         // should have hashed passowrd before save
         expect(user.password).to.not.equal(testUserData.password);
-        console.log(user.password);
         expect(user.refCode).to.not.be.null;
+        expect(user.meta).to.have.property('referredBy');
+        expect(user.meta).to.have.property('tokens');
         done();
       })
       .catch(e => done(e));
