@@ -19,98 +19,22 @@ describe('ApiResponse', () => {
 
   });
 
-  it('should set default data object response', () => {
-
-    let res = mockResponse({});
-    let apiResponse = new ApiResponse(res);
-    apiResponse.dataBase({
-      units_added: 0,
-      another_amount: 0,
-      name: 'Unknown Name'
-    });
-    apiResponse.payload.should.have.property('data');
-    apiResponse.payload.data.should.have.property('units_added');
-    apiResponse.payload.data.units_added.should.equal(0);
-
-  });
 
   describe('data', () => {
 
-    it('should set data object value', () => {
+    // FIXME: create a function that takes an
+    // object and merges it with the existing payload Object
+    // Is there a way to protect success and error?
+
+    it('should merge data with payload', () => {
 
       let res = mockResponse({});
       let apiResponse = new ApiResponse(res);
-      apiResponse.dataBase({
-        units_added: 0,
-        another_amount: 0,
-        name: 'Unknown Name'
+      apiResponse.attach({
+        some: 'data'
       });
-      apiResponse.payload.data.units_added.should.equal(0);
-      apiResponse.data('units_added', 12);
-      apiResponse.payload.data.units_added.should.equal(12);
 
-    });
-
-    it('should set nested data object value', () => {
-
-      let res = mockResponse({});
-      let apiResponse = new ApiResponse(res);
-      apiResponse.dataBase({
-        units_added: 0,
-        another_amount: 0,
-        name: {
-          first: null,
-          last: null
-        }
-      });
-      apiResponse.data('name.first', 'Michael');
-      apiResponse.data('name.last', 'Scott');
-      apiResponse.payload.data.name.first.should.equal('Michael');
-      apiResponse.payload.data.name.last.should.equal('Scott');
-
-    });
-
-
-    it('should get data object property on root', () => {
-
-      let res = mockResponse({});
-      let apiResponse = new ApiResponse(res);
-      apiResponse.dataBase({
-        units_added: 0,
-        another_amount: 0,
-        name: 'Unknown Name'
-      });
-      apiResponse.data('units_added', 12);
-      apiResponse.data('units_added').should.equal(12);
-
-    });
-
-    it('should get nested data object property', () => {
-
-      let res = mockResponse({});
-      let apiResponse = new ApiResponse(res);
-      apiResponse.dataBase({
-        units_added: 0,
-        another_amount: 0,
-        name: {
-          first: 'Michael',
-          last: 'Scott'
-        }
-      });
-      apiResponse.data('name.first').should.equal('Michael');
-
-    });
-
-    it('should return undefined for undefined path', () => {
-
-      let res = mockResponse({});
-      let apiResponse = new ApiResponse(res);
-      apiResponse.dataBase({
-        units_added: 0,
-        another_amount: 0,
-        name: 'Unknown Name'
-      });
-      chai.expect(apiResponse.data('units_added.undefinedPath')).to.equal(undefined);
+      apiResponse.payload.should.have.property('some').and.to.equal('data');
 
     });
 
@@ -179,7 +103,7 @@ describe('ApiResponse', () => {
       apiResponse
         .error('INVALID_CREDENTIALS', 'This is the error message')
         .send();
-      res.json.should.have.been.calledOnceWith({data: {}, success: false, error: {type: 'INVALID_CREDENTIALS', message: 'This is the error message'}});
+      res.json.should.have.been.calledOnceWith({success: false, error: {type: 'INVALID_CREDENTIALS', message: 'This is the error message'}});
 
     });
 

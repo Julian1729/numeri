@@ -1,34 +1,53 @@
 import React, {useState} from 'react';
+import { Redirect } from 'react-router-dom';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
+import axios from 'axios';
+import * as HttpStatusCodes from 'http-status-codes';
 
 const LoginPage = () => {
 
-  const errorMessages = useState([]);
+  const [invalid, setInvalid] = useState(false);
+  const [redirect, setRedirect] = useState(null);
 
-  const attemptAuthorization = (e) => {
+  const attemptAuthorization = e => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-    // send to database and authenticate
-    console.log(email, password);
+    setInvalid(false)
+    // send to api and authenticate
+    axios.post('/api/login', {email, password})
+      .then(({ data }) => {
+
+        if(data.redirect){
+          setRedirect(data.redirect);
+        }
+
+      })
+      .catch(e => {
+
+        // invalid credentials
+        if(e.response.status === HttpStatusCodes.UNAUTHORIZED){
+          setInvalid(true);
+        }
+
+      })
   }
 
   return (
     <Container component="main" maxWidth="xs">
+        {redirect && <Redirect to={redirect} />}
         <Typography component="h1" variant="h5">
           Numeri
         </Typography>
+        {invalid &&
+          <p>Invalid Credentials</p>
+        }
         <form noValidate onSubmit={attemptAuthorization}>
-          <div>
-            <p>Please enter an email address</p>
-          </div>
           <TextField
             variant="outlined"
             margin="normal"
@@ -39,6 +58,7 @@ const LoginPage = () => {
             name="email"
             autoComplete="email"
             autoFocus
+            error={invalid}
           />
           <TextField
             variant="outlined"
@@ -50,11 +70,9 @@ const LoginPage = () => {
             type="password"
             id="password"
             autoComplete="current-password"
+            error={invalid}
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
+
           <Button
             type="submit"
             fullWidth

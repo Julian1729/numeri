@@ -207,7 +207,7 @@ describe('Account Services', () => {
       const seedUserData = _.clone(users[0]);
       seedUserData.meta = {
         tokens: {
-          resetPassword: token
+          passwordReset: token
         }
       };
       seedUser = await new User(seedUserData).save();

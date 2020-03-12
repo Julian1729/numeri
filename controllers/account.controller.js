@@ -16,7 +16,7 @@ exports.checkAuthentication = (req, res) => {
 
 exports.login = (req, res) => {
 
-  return res.ApiResponse().send();
+  return res.ApiResponse().data('redirect', '/dashboard').send();
 
 }
 

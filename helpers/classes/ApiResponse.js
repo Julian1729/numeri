@@ -17,11 +17,10 @@ class ApiResponse {
     if(!res){
       throw new Error('ApiResponse expecting express response object in constructor');
     }
-    
+
     this.res = res;
 
     this._payload = {
-      data: {},
       success: true,
       error: {},
     };
@@ -62,15 +61,6 @@ class ApiResponse {
   }
 
   /**
-   * Overwrite default
-   * @param  {Object} dataBase Base data object
-   */
-  dataBase(dataBase){
-    _.defaults(this._payload.data, dataBase);
-    return this;
-  }
-
-  /**
    * Set or get a data property. If second
    * paramter value is passed in, it will
    * replace the value that wouuld have been set.
@@ -81,9 +71,14 @@ class ApiResponse {
    */
   data(dotNotation, value){
     if(!value){
-      return dotProp.get(this.payload.data, dotNotation);
+      return dotProp.get(this.payload, dotNotation);
     }
-    dotProp.set(this.payload.data, dotNotation, value);
+    dotProp.set(this.payload, dotNotation, value);
+    return this;
+  }
+
+  attach(object){
+    _.merge(this.payload, object);
     return this;
   }
 
