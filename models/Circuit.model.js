@@ -12,6 +12,11 @@ const circuitSchema = new Schema({
     unique: true,
   },
   overseerId: mongoose.ObjectId,
-});
+  meta: {
+    default: {
+      previousOverseers: []
+    }
+  }
+}, { minimize: false });
 
 module.exports = mongoose.model('Circuit', circuitSchema);

@@ -1,8 +1,5 @@
 const errors = require('../Errors');
 const { accountServices } = require('../services');
-const registrationValidator = require('../helpers/validators/registration.validator');
-
-const validate = require('../helpers/validators/validatorBase');
 
 exports.checkAuthentication = (req, res) => {
 
@@ -29,19 +26,12 @@ exports.logout = (req, res) => {
 
 exports.register = async (req, res, next) => {
 
-  // validate data
-  const registrationErrors = registrationValidator(req.body);
-  if(registrationErrors){
-    return res.ApiResponse().error('FORM_VALIDATION', null, registrationErrors).send();
-  }
-
   const ApiResponse = res.ApiResponse();
 
   const userObject = {
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     email: req.body.email,
-    phone: req.body.phone,
     password: req.body.password,
   };
 
@@ -59,7 +49,6 @@ exports.register = async (req, res, next) => {
 
     }else if (e instanceof errors.InvalidReferral){
       // handle an invalid referral code
-      console.log(e);
       return ApiResponse.error('INVALID_REFERRAL_CODE', null, { code: e.refCode }).send();
 
     }else if(e instanceof errors.EmailAlreadyExists){
@@ -89,15 +78,15 @@ exports.forgotPassword = async (req, res, next) => {
 
   const email = req.body.email;
 
-  // validate email
-  const emailErrors = validate(email, {
-    presence: true,
-    email: true,
-  });
-
-  if(emailErrors){
-    return res.ApiResponse().error('', null, emailErrors).send();
-  }
+  // // validate email
+  // const emailErrors = validate(email, {
+  //   presence: true,
+  //   email: true,
+  // });
+  //
+  // if(emailErrors){
+  //   return res.ApiResponse().error('', null, emailErrors).send();
+  // }
 
   let token = null;
 

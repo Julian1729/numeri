@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { Redirect } from 'react-router-dom';
+import React, { useReducer } from 'react';
+import { Redirect, Link as RouterLink } from 'react-router-dom';
 import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
@@ -8,23 +8,63 @@ import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import * as HttpStatusCodes from 'http-status-codes';
+import _ from 'lodash';
+
+import loginValidator from '../validators/login.validator';
+
+const initialState = {
+
+  invalidCredentials: false,
+  redirect: null,
+  formErrors: {email: [], password: []},
+
+}
+
+const reducer = (state, action) => {
+
+  switch (action.type) {
+    case 'RESET':
+      return initialState;
+    case 'SET_FORM_ERRORS':
+      return {...state, formErrors: action.value};
+    case 'REDIRECT':
+      return {...state, redirect: action.value};
+    case 'INVALID_CREDENTIALS':
+      return {...state, invalidCredentials: true};
+    default:
+      console.log(`Unrecognized action ${action.type}`);
+  }
+
+}
+
 
 const LoginPage = () => {
 
-  const [invalid, setInvalid] = useState(false);
-  const [redirect, setRedirect] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const attemptAuthorization = e => {
+
     e.preventDefault();
+
     const email = e.target.email.value;
     const password = e.target.password.value;
-    setInvalid(false)
+
+    dispatch({ type: 'RESET' });
+
+    // validate form
+    const validationErrors = loginValidator({email, password});
+
+    if(validationErrors){
+      // console.log('ve', JSON.stringify(validationErrors,null,2));
+      return dispatch({ type: 'SET_FORM_ERRORS', value: validationErrors })
+    }
+
     // send to api and authenticate
     axios.post('/api/login', {email, password})
       .then(({ data }) => {
 
         if(data.redirect){
-          setRedirect(data.redirect);
+          dispatch({ type: 'REDIRECT', value: data.redirect });
         }
 
       })
@@ -32,19 +72,20 @@ const LoginPage = () => {
 
         // invalid credentials
         if(e.response.status === HttpStatusCodes.UNAUTHORIZED){
-          setInvalid(true);
+          dispatch({ type: 'INVALID_CREDENTIALS', value: true });
         }
 
       })
-  }
+
+  };
 
   return (
     <Container component="main" maxWidth="xs">
-        {redirect && <Redirect to={redirect} />}
+        {state.redirect && <Redirect to={state.redirect} />}
         <Typography component="h1" variant="h5">
           Numeri
         </Typography>
-        {invalid &&
+        {state.invalidCredentials &&
           <p>Invalid Credentials</p>
         }
         <form noValidate onSubmit={attemptAuthorization}>
@@ -58,7 +99,8 @@ const LoginPage = () => {
             name="email"
             autoComplete="email"
             autoFocus
-            error={invalid}
+            error={state.invalidCredentials || !_.isEmpty(state.formErrors.email)}
+            helperText={state.formErrors.email ? state.formErrors.email.join(', ') : ''}
           />
           <TextField
             variant="outlined"
@@ -70,7 +112,8 @@ const LoginPage = () => {
             type="password"
             id="password"
             autoComplete="current-password"
-            error={invalid}
+            error={state.invalidCredentials || !_.isEmpty(state.formErrors.email)}
+            helperText={state.formErrors.password ? state.formErrors.password.join(', ') : ''}
           />
 
           <Button
@@ -88,9 +131,7 @@ const LoginPage = () => {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
+              <Link component={RouterLink} to="/register" variant="body2">Have a referral code? Sign Up</Link>
             </Grid>
           </Grid>
         </form>
