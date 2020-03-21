@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
  * Authentication
  * ======================
  */
-router.post('/checkit', accountController.checkAuthentication);
+router.get('/authenticated', accountController.checkAuthentication);
 
 router.post('/login', passport.authenticate('local'), accountController.login);
 

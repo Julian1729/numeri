@@ -9,7 +9,9 @@ import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import * as HttpStatusCodes from 'http-status-codes';
 import _ from 'lodash';
+import { connect } from 'react-redux';
 
+import { logIn } from '../actions/user.actions';
 import loginValidator from '../validators/login.validator';
 
 const initialState = {
@@ -38,7 +40,7 @@ const reducer = (state, action) => {
 }
 
 
-const LoginPage = () => {
+const LoginPage = ({ logInUser }) => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -63,7 +65,9 @@ const LoginPage = () => {
     axios.post('/api/login', {email, password})
       .then(({ data }) => {
 
+        console.log(data);
         if(data.redirect){
+          logInUser(data.id, data.circuit);
           dispatch({ type: 'REDIRECT', value: data.redirect });
         }
 
@@ -139,4 +143,16 @@ const LoginPage = () => {
   );
 }
 
-export default LoginPage;
+const mapStateToProps = state => (
+  {
+    user: state.user
+  }
+);
+
+const mapDispatchToProps = dispatch => (
+  {
+    logInUser: (id, circuit) => dispatch(logIn(id, circuit)),
+  }
+)
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginPage);

@@ -61,18 +61,11 @@ class ApiResponse {
   }
 
   /**
-   * Set or get a data property. If second
-   * paramter value is passed in, it will
-   * replace the value that wouuld have been set.
+   * Set data property.
    * @param {String} dotNotation Dot notation locator
-   * @param {Mixed} value Optional value to set
-   * @return {Mixed} If value is not passed, will return
-   * found value for dot notation
+   * @param {ApiResponse}
    */
   data(dotNotation, value){
-    if(!value){
-      return dotProp.get(this.payload, dotNotation);
-    }
     dotProp.set(this.payload, dotNotation, value);
     return this;
   }

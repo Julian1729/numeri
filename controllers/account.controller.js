@@ -1,19 +1,26 @@
 const errors = require('../Errors');
-const { accountServices } = require('../services');
+const { accountServices, circuitServices } = require('../services');
 
 exports.checkAuthentication = (req, res) => {
 
   if(!req.isAuthenticated()){
-    return res.send('not logged in')
+    return res.ApiResponse().data('isAuthenticated', 'false').send();
   }
 
-  return res.send('logged in here');
+  return res.ApiResponse().data('isAuthenticated', 'true').send();
 
 };
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
 
-  return res.ApiResponse().data('redirect', '/dashboard').send();
+  // find overseers associated circuit
+  const circuit = await circuitServices.findClaimedCircuit(req.user.id);
+
+  return res.ApiResponse()
+    .data('id', req.user.id.toString())
+    .data('redirect', '/dashboard')
+    .data('circuit', circuit ? {name: circuit.name, id: circuit.id} : circuit)
+    .send();
 
 }
 
@@ -68,7 +75,7 @@ exports.register = async (req, res, next) => {
       return next(err);
     }
 
-    return ApiResponse.data('redirect', '/dashboard').send();
+    return ApiResponse.data('redirect', '/dashboard').data('id', registeredUser.id.toString()).send();
 
   });
 

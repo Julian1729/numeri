@@ -1,3 +1,14 @@
+class FailedTest extends Error {
+
+    constructor(message){
+        super(message);
+        this.name = "FailedTest";
+        this.message = message;
+    }
+
+}
+
+
 class InsecurePassword extends Error {
 
     constructor(errors){
@@ -63,6 +74,7 @@ class InvalidToken extends Error {
 }
 
 module.exports = {
+  FailedTest,
   InsecurePassword,
   InvalidReferral,
   EmailAlreadyExists,
