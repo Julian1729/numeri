@@ -32,12 +32,31 @@ const circuitSchema = new Schema({
   }
 }, { minimize: false });
 
+// Instance Methods
+circuitSchema.methods.releaseOverseer = function(){
+
+  if(this.overseerId !== null){
+    this.previousOverseers.push(currentOverseer);
+  }
+  this.overseerId = null;
+  return this;
+
+}
+
 // Statics
 // OPTIMIZE: this is kind of unnecessary because controllers
 // use services to acces the model, this logic can be moved there
 // but at the moment im to too lazy to moce logic and tests
 circuitSchema.statics.findByOverseer = function(id) {
+
   return this.findOne({ overseerId: id });
+
+}
+
+circuitSchema.statics.findByName = function(name) {
+
+  return this.findOne({ name });
+
 }
 
 module.exports = mongoose.model('Circuit', circuitSchema);

@@ -73,6 +73,24 @@ class InvalidToken extends Error {
 
 }
 
+class CircuitAlreadyClaimed extends Error {
+
+    constructor(message){
+        super(message);
+        this.name = "CircuitAlreadyClaimed"
+    }
+
+}
+
+class OverseerAlreadyClaimed extends Error {
+
+    constructor(message){
+        super(message);
+        this.name = "OverseerAlreadyClaimed"
+    }
+
+}
+
 module.exports = {
   FailedTest,
   InsecurePassword,
@@ -81,4 +99,6 @@ module.exports = {
   InvalidCredentials,
   UserNotFound,
   InvalidToken,
+  CircuitAlreadyClaimed,
+  OverseerAlreadyClaimed,
 }
