@@ -1,7 +1,5 @@
 import React from 'react';
 
-const Dashboard = () => (
-  <p>I'm a pirate</p>
-);
+const Dashboard = props => <p>Im a pirate</p>;
 
 export default Dashboard;

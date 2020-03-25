@@ -29,15 +29,16 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: true,
-  saveUninitialized: true,
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 // passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 // routers
 const apiRouter = require('./routes/api.route');
@@ -47,10 +48,8 @@ const apiRouter = require('./routes/api.route');
 // app.get('/', indexRouter);
 
 const attachApiResponseObject = (req, res, next) => {
-
   res.ApiResponse = () => new ApiResponse(res);
   next();
-
 };
 
 app.use('/api', attachApiResponseObject, apiRouter);
