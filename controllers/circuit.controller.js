@@ -22,10 +22,17 @@ exports.claimCircuit = async (req, res, next) => {
         .error('CIRCUIT_NOT_AVAILABLE', null, { circuitName })
         .send();
     } else if (e instanceof errors.OverseerAlreadyClaimed) {
-      console.log(e.message);
+      // find corresponding circuit
+      const { name, id } = await circuitServices.findClaimedCircuit(
+        req.user.id
+      );
       return res
         .ApiResponse()
-        .error('OVERSEER_NOT_AVAILABLE')
+        .error('OVERSEER_ALREADY_ASSIGNED')
+        .data('circuit', {
+          name,
+          id,
+        })
         .send();
     } else {
       next(e);

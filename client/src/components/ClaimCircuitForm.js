@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
-import HttpStatusCodes from 'http-status-codes';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -31,8 +30,9 @@ const ClaimCircuit = ({ claimCircuit }) => {
             return setError(
               `${data.error.circuitName} is not available, and is currently claimed by another Circuit Overseer.`
             );
-          case 'OVERSEER_NOT_AVAILABLE':
-            return setRedirect('/dashboard');
+          case 'OVERSEER_ALREADY_ASSIGNED':
+            console.log(JSON.stringify(data, null, 2));
+            return claimCircuit(data.circuit);
           default:
             console.log(error);
         }
