@@ -50,14 +50,11 @@ for (let i = 0; i < 3; i++) {
   users.push(casual.user);
 }
 
-(async (users, hashPassword) => {
-  let hashedUsers = [];
-  for (var i = 0; i < users.length; i++) {
-    let user = users[i];
-    users.rawPassword = user.password;
-    user.password = await hashPassword(user.password);
-    hashedUsers.push(user);
-  }
-})(users, accountHelpers.hashPassword);
+// hash user passwords
+users.map(user => {
+  user.rawPassword = user.password;
+  user.password = accountHelpers.hashPasswordSync(user.password);
+  return user;
+});
 
 module.exports = users;
