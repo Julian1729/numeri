@@ -2,37 +2,38 @@ const errors = require('../Errors');
 const { accountServices, circuitServices } = require('../services');
 
 exports.checkAuthentication = (req, res) => {
-
-  if(!req.isAuthenticated()){
-    return res.ApiResponse().data('isAuthenticated', 'false').send();
+  if (!req.isAuthenticated()) {
+    return res
+      .ApiResponse()
+      .data('isAuthenticated', 'false')
+      .send();
   }
 
-  return res.ApiResponse().data('isAuthenticated', 'true').send();
-
+  return res
+    .ApiResponse()
+    .data('isAuthenticated', 'true')
+    .send();
 };
 
 exports.login = async (req, res) => {
-
   // find overseers associated circuit
   const circuit = await circuitServices.findClaimedCircuit(req.user.id);
 
-  return res.ApiResponse()
+  return res
+    .ApiResponse()
     .data('id', req.user.id.toString())
     .data('redirect', '/dashboard')
-    .data('circuit', circuit ? {name: circuit.name, id: circuit.id} : circuit)
+    .data('circuit', circuit ? { name: circuit.name, id: circuit.id } : circuit)
     .send();
-
-}
+};
 
 exports.logout = (req, res) => {
-
   req.logout();
+  req.session.destroy();
   return res.ApiResponse().send();
-
-}
+};
 
 exports.register = async (req, res, next) => {
-
   const ApiResponse = res.ApiResponse();
 
   const userObject = {
@@ -45,44 +46,40 @@ exports.register = async (req, res, next) => {
   let registeredUser = null;
 
   try {
-
-    registeredUser = await accountServices.registerUser(userObject, req.body.referralCode);
-
+    registeredUser = await accountServices.registerUser(
+      userObject,
+      req.body.referralCode
+    );
   } catch (e) {
-
     // handle insecure password error
-    if(e instanceof errors.InsecurePassword){
+    if (e instanceof errors.InsecurePassword) {
       return ApiResponse.error('INSECURE_PASSWORD').send();
-
-    }else if (e instanceof errors.InvalidReferral){
+    } else if (e instanceof errors.InvalidReferral) {
       // handle an invalid referral code
-      return ApiResponse.error('INVALID_REFERRAL_CODE', null, { code: e.refCode }).send();
-
-    }else if(e instanceof errors.EmailAlreadyExists){
+      return ApiResponse.error('INVALID_REFERRAL_CODE', null, {
+        code: e.refCode,
+      }).send();
+    } else if (e instanceof errors.EmailAlreadyExists) {
       // handle existing email
       return ApiResponse.error('EMAIL_ALREADY_EXISTS').send();
-
-    }else{
+    } else {
       return next(e);
     }
-
   }
 
   // login w/ passport helper function
-  req.login(registeredUser, (err) => {
-
-    if(err){
+  req.login(registeredUser, err => {
+    if (err) {
       return next(err);
     }
 
-    return ApiResponse.data('redirect', '/dashboard').data('id', registeredUser.id.toString()).send();
-
+    return ApiResponse.data('redirect', '/dashboard')
+      .data('id', registeredUser.id.toString())
+      .send();
   });
-
 };
 
 exports.forgotPassword = async (req, res, next) => {
-
   const email = req.body.email;
 
   // // validate email
@@ -98,30 +95,28 @@ exports.forgotPassword = async (req, res, next) => {
   let token = null;
 
   try {
-
     token = await accountServices.setForgotPasswordToken(email);
-
   } catch (e) {
-
-    if(e instanceof errors.InvalidCredentials){
-      return res.ApiResponse()
+    if (e instanceof errors.InvalidCredentials) {
+      return res
+        .ApiResponse()
         .error('EMAIL_NOT_REGISTERED', `User with email "${email}" not found`)
         .send();
-    }else{
+    } else {
       return next(e);
     }
-
   }
 
   // OPTIMIZE: send user email with link
 
   // send back token
-  return res.ApiResponse().data('token', token).send();
-
+  return res
+    .ApiResponse()
+    .data('token', token)
+    .send();
 };
 
 exports.resetPassword = async (req, res, next) => {
-
   const token = req.params.token;
   const userId = req.params.userId;
   const password = req.body.password;
@@ -129,45 +124,42 @@ exports.resetPassword = async (req, res, next) => {
   let user = null;
 
   try {
-
     user = await accountServices.resetPassword(userId, token, password);
-
   } catch (e) {
-
     console.log(e);
-    if(e instanceof errors.InsecurePassword){
-      return res.ApiResponse()
+    if (e instanceof errors.InsecurePassword) {
+      return res
+        .ApiResponse()
         .error('INSECURE_PASSWORD', null, e.getErrors())
         .send();
-    }else if (e instanceof errors.UserNotFound){
+    } else if (e instanceof errors.UserNotFound) {
       // OPTIMIZE: send 401 here?
-      return res.ApiResponse()
+      return res
+        .ApiResponse()
         .error('USER_NOT_FOUND')
         .send();
-    }else if(e instanceof errors.InvalidToken){
-      return res.ApiResponse()
-        .error('INVALID_TOKEN', null, {token})
+    } else if (e instanceof errors.InvalidToken) {
+      return res
+        .ApiResponse()
+        .error('INVALID_TOKEN', null, { token })
         .send();
-    }else{
+    } else {
       return next(e);
     }
-
   }
 
   // login w/ passport helper function
   req.login(user, err => {
-
-    if(err){
+    if (err) {
       return next(err);
     }
 
     // OPTIMIZE: add flash message
     // to be displayed after redirect
 
-    return res.ApiResponse()
+    return res
+      .ApiResponse()
       .data('redirect', '/dashboard')
       .send();
-
   });
-
 };

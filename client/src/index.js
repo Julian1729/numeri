@@ -6,16 +6,14 @@ import { Provider } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 // styles and fonts
 import './styles/numeri.sass';
-import configStore from './config/store.config';
+import store from './config/store.config';
 
 import AppRouter from './routers/AppRouter';
-
-const store = configStore();
 
 const jsx = (
   <Provider store={store}>
     <CssBaseline />
-    <AppRouter/>
+    <AppRouter />
   </Provider>
 );
 

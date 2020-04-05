@@ -130,9 +130,6 @@ const Wrapper = props => {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  useEffect(() => {
-    console.log('circuit ran');
-  }, [props.circuit]);
   // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
@@ -178,7 +175,7 @@ const Wrapper = props => {
                 {props.circuit.name}
               </Typography>
               <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
+                <Badge color="secondary">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
