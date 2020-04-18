@@ -1,5 +1,4 @@
 import React, { useReducer } from 'react';
-import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -7,8 +6,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -35,7 +32,7 @@ const useStyles = makeStyles(theme => ({
   },
   error: {
     color: '#f44336',
-  }
+  },
 }));
 
 const initialState = {
@@ -51,13 +48,12 @@ const initialState = {
     },
     insecurePassword: false,
     invalidReferral: false,
-    emailExists: ''
+    emailExists: '',
   },
   redirect: null,
 };
 
 const reducer = (state, action) => {
-
   switch (action.type) {
     case 'SET_FORM_ERRORS':
       // flatten error message arrays into string
@@ -71,28 +67,28 @@ const reducer = (state, action) => {
     case 'SET_INSECURE_PASSWORD':
       return { ...state, errors: { ...state.errors, insecurePassword: true } };
     case 'SET_INVALID_REFERRAL_CODE':
-      return { ...state, errors : { ...state.errors, invalidReferral: true } };
+      return { ...state, errors: { ...state.errors, invalidReferral: true } };
     case 'SET_EMAIL_ALREADY_EXISTS':
-      return { ...state, errors: { ...state.errors, emailExists:  'Email already registered'}} ;
+      return {
+        ...state,
+        errors: { ...state.errors, emailExists: 'Email already registered' },
+      };
     case 'REDIRECT':
       return { ...state, redirect: action.value };
     default:
       return console.log(`Unrecognized action ${action.type}`);
   }
-
 };
 
 export default function SignUp() {
-
   const classes = useStyles();
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const attemptRegistration = e => {
-
     e.preventDefault();
 
-    dispatch({type: 'RESET_FORM_ERRORS'});
+    dispatch({ type: 'RESET_FORM_ERRORS' });
 
     const formData = {
       firstName: e.target.firstName.value,
@@ -107,36 +103,48 @@ export default function SignUp() {
     // validate data
     const validationErrors = registrationValidator(formData);
 
-    if(validationErrors){
-      return dispatch({ type: 'SET_FORM_ERRORS', value: validationErrors })
+    if (validationErrors) {
+      return dispatch({ type: 'SET_FORM_ERRORS', value: validationErrors });
     }
 
-    const {firstName, lastName, email, password, referralCode} = formData;
+    const { firstName, lastName, email, password, referralCode } = formData;
 
-    axios.post('/api/register', {firstName, lastName, email, password, referralCode})
+    axios
+      .post('/api/register', {
+        firstName,
+        lastName,
+        email,
+        password,
+        referralCode,
+      })
       .then(({ data }) => {
-
-        if(!data.success){
+        if (!data.success) {
           switch (data.error.type) {
             case 'INSECURE_PASSWORD':
-              return dispatch({ type: 'SET_INSECURE_PASSWORD' })
+              return dispatch({ type: 'SET_INSECURE_PASSWORD' });
             case 'INVALID_REFERRAL_CODE':
               return dispatch({ type: 'SET_INVALID_REFERRAL_CODE' });
             case 'EMAIL_ALREADY_EXISTS':
               return dispatch({ type: 'SET_EMAIL_ALREADY_EXISTS' });
             default:
-              return console.log(`Unrecognized error returned by API: ${JSON.stringify(data.error, null, 2)}`);
+              return console.log(
+                `Unrecognized error returned by API: ${JSON.stringify(
+                  data.error,
+                  null,
+                  2
+                )}`
+              );
           }
         }
 
-        if(data.redirect){
+        if (data.redirect) {
           return dispatch({ type: 'REDIRECT', value: data.redirect });
         }
-
       })
-      .catch(e => {console.error(e.stack);})
-
-  }
+      .catch(e => {
+        console.error(e.stack);
+      });
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -146,7 +154,11 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Register
         </Typography>
-        <form className={classes.form} onSubmit={attemptRegistration} noValidate>
+        <form
+          className={classes.form}
+          onSubmit={attemptRegistration}
+          noValidate
+        >
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -182,10 +194,17 @@ export default function SignUp() {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
-                error={!_.isEmpty(state.errors.formErrors.email) || state.errors.emailExists !== ''}
-                helperText={state.errors.formErrors.email || state.errors.emailExists}
+                error={
+                  !_.isEmpty(state.errors.formErrors.email) ||
+                  state.errors.emailExists !== ''
+                }
+                helperText={
+                  state.errors.formErrors.email || state.errors.emailExists
+                }
               />
-              <FormHelperText>Please use your personal email, not your jwpub.org email.</FormHelperText>
+              <FormHelperText>
+                Please use your personal email, not your jwpub.org email.
+              </FormHelperText>
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -197,9 +216,14 @@ export default function SignUp() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
-                error={!_.isEmpty(state.errors.formErrors.password) || state.errors.insecurePassword}
+                error={
+                  !_.isEmpty(state.errors.formErrors.password) ||
+                  state.errors.insecurePassword
+                }
               />
-              <FormHelperText className={state.errors.insecurePassword ? classes.error : ''}>
+              <FormHelperText
+                className={state.errors.insecurePassword ? classes.error : ''}
+              >
                 {`Password must 8 characters or longer, and
                 contain at least 1 uppercase letter,
                 at least 1 special character (@#$%^&*(),.?":{}|<>),
@@ -227,17 +251,31 @@ export default function SignUp() {
                 fullWidth
                 id="referralCode"
                 label="Referral Code"
-                error={!_.isEmpty(state.errors.formErrors.referralCode) || state.errors.invalidReferral}
-                helperText={state.errors.invalidReferral && 'Invalid referral code'}
+                error={
+                  !_.isEmpty(state.errors.formErrors.referralCode) ||
+                  state.errors.invalidReferral
+                }
+                helperText={
+                  state.errors.invalidReferral && 'Invalid referral code'
+                }
               />
-              <FormHelperText>This code must be retrieved from the Circuit Overseer who referred you to Numeri.</FormHelperText>
+              <FormHelperText>
+                This code must be retrieved from the Circuit Overseer who
+                referred you to Numeri.
+              </FormHelperText>
             </Grid>
             <Grid item xs={12}>
               <FormControlLabel
-                control={<Checkbox name="confirmCO" value="1" color="primary" />}
+                control={
+                  <Checkbox name="confirmCO" value="1" color="primary" />
+                }
                 label="I confirm that I am an appointed Circuit Overseer of Jehovah's Witnesses."
               />
-              {state.errors.formErrors.confirmCO && <FormHelperText className={classes.error} >{state.errors.formErrors.confirmCO}</FormHelperText>}
+              {state.errors.formErrors.confirmCO && (
+                <FormHelperText className={classes.error}>
+                  {state.errors.formErrors.confirmCO}
+                </FormHelperText>
+              )}
             </Grid>
           </Grid>
           <Button
@@ -260,5 +298,4 @@ export default function SignUp() {
       </div>
     </Container>
   );
-
 }

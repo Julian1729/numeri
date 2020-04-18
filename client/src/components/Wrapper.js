@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -12,9 +12,7 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import Container from '@material-ui/core/Container';
-// import Grid from '@material-ui/core/Grid';
 // import Paper from '@material-ui/core/Paper';
-import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -30,12 +28,7 @@ import userActions from '../actions/user.actions';
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      Numeri, a Brother App
     </Typography>
   );
 }
@@ -163,12 +156,28 @@ const Wrapper = props => {
                 color="inherit"
                 noWrap
                 className={classes.title}
+                // style={{ lineHeight: '1rem' }}
               >
                 {props.title}
               </Typography>
+              {/* <Grid spacing={0} item direction="column">
+                <Typography
+                  component="h1"
+                  variant="h6"
+                  color="inherit"
+                  noWrap
+                  className={classes.title}
+                  // style={{ lineHeight: '1rem' }}
+                >
+                  {props.title}
+                </Typography>
+                <Typography variant="caption" color="inherit" gutterBottom>
+                  Testers
+                </Typography>
+              </Grid> */}
               <Typography
                 component="h2"
-                variant="subtitle1"
+                variant="subtitle2"
                 color="inherit"
                 noWrap
               >
