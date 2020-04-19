@@ -3,7 +3,12 @@ const router = express.Router();
 const passport = require('passport');
 
 const { accountController, circuitController } = require('../controllers');
-const { shouldBeAuthenticated, shouldNotBeAuthenticated } = require('../middleware/authentication.middleware');
+const {
+  shouldBeAuthenticated,
+  shouldNotBeAuthenticated,
+} = require('../middleware/authentication.middleware');
+const visitRouter = require('./visit.route');
+const userMiddleware = require('../middleware/user.middleware');
 
 router.get('/', (req, res) => {
   res.send('Numeri API');
@@ -22,11 +27,29 @@ router.post('/register', shouldNotBeAuthenticated, accountController.register);
 
 router.post('/logout', accountController.logout);
 
-router.post('/forgot-password', shouldNotBeAuthenticated, accountController.forgotPassword);
+router.post(
+  '/forgot-password',
+  shouldNotBeAuthenticated,
+  accountController.forgotPassword
+);
 
-router.post('/reset-password/:userId/:token', shouldNotBeAuthenticated, accountController.resetPassword);
+router.post(
+  '/reset-password/:userId/:token',
+  shouldNotBeAuthenticated,
+  accountController.resetPassword
+);
 
-router.post('/circuit/claim',  shouldBeAuthenticated, circuitController.claimCircuit);
+router.use(
+  '/visits',
+  shouldBeAuthenticated,
+  userMiddleware.findCircuit,
+  visitRouter
+);
 
+router.post(
+  '/circuit/claim',
+  shouldBeAuthenticated,
+  circuitController.claimCircuit
+);
 
 module.exports = router;
