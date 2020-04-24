@@ -18,6 +18,7 @@ const circuitSchema = new Schema(
       type: [
         {
           type: mongoose.Types.ObjectId,
+          ref: 'Congregation',
           unique: true,
         },
       ],

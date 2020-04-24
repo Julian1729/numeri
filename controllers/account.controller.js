@@ -16,14 +16,12 @@ exports.checkAuthentication = (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  // find overseers associated circuit
-  const circuit = await circuitServices.findClaimedCircuit(req.user.id);
-
+  const circuit = req.user.circuitId || null;
   return res
     .ApiResponse()
     .data('id', req.user.id.toString())
     .data('redirect', '/dashboard')
-    .data('circuit', circuit ? { name: circuit.name, id: circuit.id } : circuit)
+    .data('circuit', circuit ? { name: circuit.name, id: circuit.id } : null)
     .send();
 };
 

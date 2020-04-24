@@ -35,8 +35,17 @@ const userSchema = new Schema(
       trim: true,
     },
     circuitId: {
-      type: mongoose.Types.ObjectId,
-      unique: true,
+      type: Schema.Types.ObjectId,
+      default: null,
+      ref: 'Circuit',
+      index: {
+        unique: true,
+        partialFilterExpression: {
+          circuitId: {
+            $type: 'objectId',
+          },
+        },
+      },
     },
     refCode: {
       type: String,

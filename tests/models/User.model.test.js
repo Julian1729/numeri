@@ -63,7 +63,7 @@ describe('User Model', () => {
     testUser
       .save()
       .then(user => {
-        expect(user.circuitId).to.be.undefined;
+        expect(user.circuitId).to.be.null;
         const testUserData2 = {
           firstName: 'Julian',
           lastName: 'Hernandez',
@@ -74,7 +74,7 @@ describe('User Model', () => {
         return new User(testUserData2).save();
       })
       .then(user2 => {
-        expect(user2.circuitId).to.be.undefined;
+        expect(user2.circuitId).to.be.null;
         done();
       })
       .catch(e => done(e));
@@ -111,6 +111,7 @@ describe('User Model', () => {
       })
       .catch(e => {
         expect(e.code).to.eql(11000);
+        done();
       });
   });
 

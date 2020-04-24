@@ -69,4 +69,23 @@ describe('Circuit Model', () => {
       })
       .catch(e => done(e));
   });
+
+  it('should not allow 2 circuits with the same congregation in list', async () => {
+    const congregationId = new ObjectId();
+    const testCircuit1 = _.clone(circuits[0]);
+    const testCircuit2 = _.clone(circuits[2]);
+    testCircuit1.congregations.push(congregationId);
+    testCircuit2.congregations.push(congregationId);
+
+    const circuitA = await new Circuit(testCircuit1).save();
+    try {
+      await new Circuit(testCircuit2).save();
+      throw new FailedTest(
+        'Should not have saved testCircuit2 with same congregation'
+      );
+    } catch (e) {
+      expect(e instanceof FailedTest).to.not.be.true;
+      expect(e.code).to.equal(11000);
+    }
+  });
 });

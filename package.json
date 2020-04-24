@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "dev": "export NODE_ENV=development && nodemon --exec npm start",
     "test": "export NODE_ENV=test && mocha \"tests/**/*.test.js\" --recursive --exit && export NODE_ENV=development",
-    "seed": "seed --drop-database --replace-id -u 'mongodb://localhost:27017/NumeriLocal' ./data"
+    "seed": "DEBUG=mongo-seeding && seed --drop-database --replace-id -u 'mongodb://localhost:27017/NumeriLocal' ./data"
   },
   "dependencies": {
     "bcrypt": "^4.0.0",

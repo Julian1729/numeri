@@ -3,6 +3,7 @@ const { ObjectId } = require('mongodb');
 module.exports = [
   {
     name: 'PA-16',
+    congregations: [new ObjectId(), new ObjectId(), new ObjectId()],
     meta: {
       previousOverseers: [],
     },
@@ -10,6 +11,7 @@ module.exports = [
 
   {
     name: 'NY-25',
+    congregations: [new ObjectId(), new ObjectId(), new ObjectId()],
     meta: {
       previousOverseers: [new ObjectId(), new ObjectId()],
     },
@@ -17,6 +19,7 @@ module.exports = [
 
   {
     name: 'NY-13',
+    congregations: [new ObjectId(), new ObjectId(), new ObjectId()],
     meta: {
       previousOverseers: [],
     },
@@ -24,6 +27,7 @@ module.exports = [
 
   {
     name: 'NJ-1',
+    congregations: [new ObjectId(), new ObjectId(), new ObjectId()],
     meta: {
       previousOverseers: [],
     },

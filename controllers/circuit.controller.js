@@ -1,7 +1,7 @@
 const HttpStatusCodes = require('http-status-codes');
 
 const errors = require('../Errors');
-const { circuitServices } = require('../services');
+const { userServices } = require('../services');
 
 exports.claimCircuit = async (req, res, next) => {
   const { state = '', number = '' } = req.body;
@@ -14,7 +14,7 @@ exports.claimCircuit = async (req, res, next) => {
   let result = null;
 
   try {
-    result = await circuitServices.claimCircuit(req.user.id, circuitName);
+    result = await userServices.claimCircuit(req.user, circuitName);
   } catch (e) {
     if (e instanceof errors.CircuitAlreadyClaimed) {
       return res
@@ -22,17 +22,9 @@ exports.claimCircuit = async (req, res, next) => {
         .error('CIRCUIT_NOT_AVAILABLE', null, { circuitName })
         .send();
     } else if (e instanceof errors.OverseerAlreadyClaimed) {
-      // find corresponding circuit
-      const { name, id } = await circuitServices.findClaimedCircuit(
-        req.user.id
-      );
       return res
         .ApiResponse()
         .error('OVERSEER_ALREADY_ASSIGNED')
-        .data('circuit', {
-          name,
-          id,
-        })
         .send();
     } else {
       next(e);

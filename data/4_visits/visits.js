@@ -4,7 +4,7 @@ const moment = require('moment');
 const _ = require('lodash');
 
 const momentHelpers = require('../../helpers/moment.helpers');
-const congregations = require('../3_congregations/congregations');
+const congregations = require('../1_congregations/congregations');
 
 // only seed the first 2 hardcoded congregations with visits
 const generateAttendanceWeeks = () => {

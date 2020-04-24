@@ -15,6 +15,7 @@ module.exports = [
     lastName: 'Jackson',
     email: 'james@example.com',
     password: 'JamesJackson123$',
+    circuitId: null,
     refCode: 'cvb784r',
   },
 ];
