@@ -6,10 +6,6 @@ const congregationSchema = new Schema({
     type: String,
     required: true,
   },
-  circuitId: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-  },
 });
 
 module.exports = mongoose.model('Congregation', congregationSchema);
