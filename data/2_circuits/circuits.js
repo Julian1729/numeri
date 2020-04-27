@@ -31,7 +31,7 @@ casual.define('circuit', () => ({
 
 let pa16 = {
   name: 'PA-16',
-  congregations: [congregations[0], congregations[1]],
+  congregations: [congregations[0].id, congregations[1].id],
   meta: {
     previousOverseers: [],
   },
@@ -48,18 +48,19 @@ const circuits = [
 
 // push 25 more congregations into PA-16
 for (let i = 0; i < 25; i++) {
-  pa16.congregations.push(congregationClones.pop());
+  pa16.congregations.push(congregationClones.pop().id);
 }
 
 // divide the rest of the congregations into the rest of the circuits
 const circuitAmount = Math.floor(congregationClones.length / circuits.length);
-const congregationBundles = _.chunk(congregationClones, circuitAmount);
+let congregationBundles = _.chunk(congregationClones, circuitAmount);
+// reduce congregationBundles to ids
+congregationBundles = congregationBundles.map(bundle => bundle.map(({id}) => id));
 circuits.forEach(circuit => {
   circuit.congregations = congregationBundles.shift();
 });
-// add remaining congregations to first congregation
-circuits[0].congregations.concat([...congregationBundles]);
-
+// add remaining congregations to first circuit
+congregationBundles.forEach(bundle => circuits[0].congregations.push(...bundle));
 // push pa16 into circuits at beginning
 circuits.unshift(pa16);
 
