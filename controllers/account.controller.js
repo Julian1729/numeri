@@ -8,7 +8,7 @@ exports.checkAuthentication = (req, res) => {
       .data('isAuthenticated', 'false')
       .send();
   }
-
+  console.log(JSON.stringify(req.user, null, 2));
   return res
     .ApiResponse()
     .data('isAuthenticated', 'true')
