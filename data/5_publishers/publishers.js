@@ -122,7 +122,7 @@ const generatePublishers = (count = 1) => {
 const populatePublishersVisitData = (publishers, visit) => {
   const last6Months = momentHelpers.getLast6Months(visit.startDate);
   return publishers.map(publisher => {
-    publisher.visitId = visit.id;
+    publisher.visitId = visit._id;
     publisher.serviceReports = generateServiceReports(
       publisher.pioneerStatus,
       last6Months
@@ -131,7 +131,7 @@ const populatePublishersVisitData = (publishers, visit) => {
   });
 };
 
-// organize visits by congregation id {congregationId: [visits]}
+// organize visits by congregation _id {congregationId: [visits]}
 const visitMap = {};
 
 visits.forEach(visit => {

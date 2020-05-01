@@ -11,12 +11,12 @@ let users = [
     email: 'julian@example.com',
     password: 'Julian1729$',
     refCode: 'jul1',
-    circuitId: circuits[0].id, // attach to PA-16
+    circuitId: circuits[0]._id, // attach to PA-16
     meta: {
       tokens: {},
       referredBy: null,
     },
-    id: new ObjectId(),
+    _id: new ObjectId(),
   },
   {
     firstName: 'James',
@@ -24,12 +24,12 @@ let users = [
     email: 'james@example.com',
     password: 'JamesIsCool123',
     refCode: 'jam2',
-    circuitId: circuits[1].id,
+    circuitId: circuits[1]._id,
     meta: {
       tokens: {},
       referredBy: null,
     },
-    id: new ObjectId(),
+    _id: new ObjectId(),
   },
 ];
 
@@ -44,9 +44,9 @@ casual.define('user', () => ({
   meta: {
     tokens: {},
     // all random users will be referredBy Julian (first user)
-    referredBy: users[0].id,
+    referredBy: users[0]._id,
   },
-  id: new ObjectId(),
+  _id: new ObjectId(),
 }));
 
 // enter 3 randomized users in to array
@@ -55,7 +55,7 @@ for (let i = 0; i < 3; i++) {
 }
 
 // get available circuit ids but start at 2 index because first 2 were assigned
-const availableCircuitIds = circuits.slice(2).map(({ id }) => id);
+const availableCircuitIds = circuits.slice(2).map(({ _id }) => _id);
 users.map(user => {
   // assign circuit from availble ids if does not already have one
   if (user.circuitId === null) {

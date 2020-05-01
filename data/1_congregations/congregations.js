@@ -15,17 +15,17 @@ casual.define('congregation_name', () => {
 
 casual.define('congregation', () => ({
   name: casual.congregation_name,
-  id: new ObjectId(),
+  _id: new ObjectId(),
 }));
 
 let congregations = [
   {
     name: 'Roosevelt',
-    id: new ObjectId(),
+    _id: new ObjectId(),
   },
   {
     name: 'North English',
-    id: new ObjectId(),
+    _id: new ObjectId(),
   },
 ];
 

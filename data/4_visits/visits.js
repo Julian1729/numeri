@@ -69,8 +69,8 @@ const generateCongregationVisitsSequence = congregationId => {
   return visits;
 };
 
-const visits = generateCongregationVisitsSequence(congregations[0].id).concat(
-  generateCongregationVisitsSequence(congregations[1].id)
+const visits = generateCongregationVisitsSequence(congregations[0]._id).concat(
+  generateCongregationVisitsSequence(congregations[1]._id)
 );
 
 // console.log(JSON.stringify(visits, null, 2));
