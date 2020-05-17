@@ -10,7 +10,7 @@ module.exports = passport => {
 
   passport.deserializeUser((id, done) => {
     User.findById(id)
-      .populate({path: 'circuitId', populate: { path: 'congregations' }})
+      .populate({ path: 'circuit', populate: { path: 'congregations' } })
       .then(user => {
         return done(null, user);
       })
@@ -21,7 +21,7 @@ module.exports = passport => {
   passport.use(
     new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
       User.findOne({ email })
-        .populate({path: 'circuitId', populate: { path: 'congregations' }})
+        .populate({ path: 'circuit', populate: { path: 'congregations' } })
         .then(user => {
           if (!user) {
             return done(null, false);

@@ -62,12 +62,29 @@ const userSchema = new Schema(
       },
     },
   },
-  { minimize: false }
+  {
+    minimize: false,
+    toJSON: {
+      virtuals: true,
+      transform: (doc, ret) => {
+        delete ret._id;
+        // add previousVisit to object
+        return ret;
+      },
+    },
+  }
 );
 
 // Virtuals
 userSchema.virtual('name').get(function() {
   return `${this.firstName} ${this.lastName}`;
+});
+
+userSchema.virtual('circuit', {
+  ref: 'Circuit',
+  localField: 'circuitId',
+  foreignField: '_id',
+  justOne: true,
 });
 
 // Statics

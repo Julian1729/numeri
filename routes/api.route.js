@@ -8,7 +8,6 @@ const {
   shouldNotBeAuthenticated,
 } = require('../middleware/authentication.middleware');
 const visitRouter = require('./visit.route');
-const userMiddleware = require('../middleware/user.middleware');
 
 router.get('/', (req, res) => {
   res.send('Numeri API');
@@ -39,12 +38,7 @@ router.post(
   accountController.resetPassword
 );
 
-router.use(
-  '/visits',
-  shouldBeAuthenticated,
-  userMiddleware.findCircuit,
-  visitRouter
-);
+router.use('/visits', shouldBeAuthenticated, visitRouter);
 
 router.post(
   '/circuit/claim',

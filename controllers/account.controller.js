@@ -16,7 +16,7 @@ exports.checkAuthentication = (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const circuit = req.user.circuitId || null;
+  const circuit = req.user.circuit || null;
   return res
     .ApiResponse()
     .data('id', req.user.id.toString())

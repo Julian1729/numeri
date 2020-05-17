@@ -19,6 +19,8 @@ require('./config/passport.config')(passport);
 require('./models/database')(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to Database');
+    // register all models
+    require('./models');
   })
   .catch(e => {
     console.log(`Error connecting to database: ${e.message}`);

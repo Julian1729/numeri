@@ -48,10 +48,10 @@ const publisherSchema = new Schema(
       unique: false,
     },
     visitId: {
-      type: mongoose.Types.ObjectId,
+      type: ObjectId,
       ref: 'Visit',
       required: true,
-      unique: false,
+      // unique: false,
     },
     firstName: {
       type: String,

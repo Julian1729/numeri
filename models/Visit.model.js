@@ -15,7 +15,10 @@ const meetingAttendanceSchema = new Schema({
 
 const visitSchema = new Schema(
   {
-    congregationId: mongoose.Types.ObjectId,
+    congregationId: {
+      type: mongoose.Types.ObjectId,
+      ref: 'Congregation',
+    },
     startDate: {
       type: Date,
       required: true,
@@ -41,7 +44,56 @@ const visitSchema = new Schema(
       },
     },
   },
-  { minimize: false }
+  {
+    minimize: false,
+    toObject: {
+      virtuals: true,
+      transform: (doc, ret) => {
+        delete ret._id;
+        // add previousVisit to object
+        if (doc.previousVisit) {
+          ret.previousVisit = doc.previousVisit;
+        }
+        return ret;
+      },
+    },
+    toJSON: {
+      virtuals: true,
+      transform: (doc, ret) => {
+        delete ret._id;
+        // add previousVisit to object
+        if (doc.previousVisit) {
+          ret.previousVisit = doc.previousVisit;
+        }
+        return ret;
+      },
+    },
+  }
 );
+
+// Virtuals
+visitSchema.virtual('congregation', {
+  ref: 'Congregation',
+  localField: 'congregationId',
+  foreignField: '_id',
+  justOne: true,
+});
+
+// OPTIMIZE: create virtual publishers and get publishers
+// documents that belong to that visit
+
+// Methods
+visitSchema.methods.findPreviousVisit = function(fields = null) {
+  return mongoose
+    .model('Visit', visitSchema)
+    .findOne(
+      {
+        congregationId: this.congregationId,
+        endDate: { $lt: this.endDate },
+      },
+      fields
+    )
+    .sort({ endDate: -1 });
+};
 
 module.exports = mongoose.model('Visits', visitSchema);
