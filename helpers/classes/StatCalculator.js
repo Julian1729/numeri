@@ -79,9 +79,9 @@ class StatCalculator {
 
   calculate() {
     // loop through publishers
-    _loopPublishers(this.publishers);
-    _calculateHourAverages();
-    _calculateMeetingAttendance();
+    this._loopPublishers(this.publishers);
+    this._calculateHourAverages();
+    this._calculateMeetingAttendance();
   }
 
   _calculateMeetingAttendance = () => {
@@ -98,14 +98,12 @@ class StatCalculator {
       // add to month totals
       this.totals.meetingAttendance.months[monthPropertyKey] = monthTotal;
       // calculate month average
-      this.averages.meetingAttendance.months[monthPropertyKey] = Math.ceil(
-        monthTotal / totalMeetings
-      );
+      this.averages.meetingAttendance.months[monthPropertyKey] =
+        Math.ceil(monthTotal / totalMeetings) || 0;
     });
     // calculate overall visit meeting attendance average
-    this.averages.meetingAttendance.overall = Math.ceil(
-      this.totals.meetingAttendance.overall / totalMeetings
-    );
+    this.averages.meetingAttendance.overall =
+      Math.ceil(this.totals.meetingAttendance.overall / totalMeetings) || 0;
   };
 
   _calculateHourAverages = () => {
@@ -117,33 +115,33 @@ class StatCalculator {
       );
     });
     // congregation average
-    this.averages.hours.congregation = Math.ceil(
-      this.totals.hours.congregation / this.publishers.length
-    );
+    this.averages.hours.congregation =
+      Math.ceil(this.totals.hours.congregation / this.publishers.length) || 0;
     // elder average
-    this.averages.hours.elders = Math.ceil(
-      this.totals.hours.elders / this.lists.elders.length
-    );
+    this.averages.hours.elders =
+      Math.ceil(this.totals.hours.elders / this.lists.elders.length) || 0;
     // ms average
-    this.averages.hours.ms = Math.ceil(
-      this.totals.hours.ms / this.lists.ms.length
-    );
+    this.averages.hours.ms =
+      Math.ceil(this.totals.hours.ms / this.lists.ms.length) || 0;
     // regular pioneer average
-    this.averages.hours.pioneers.regular = Math.ceil(
-      this.totals.hours.pioneers.regular / this.lists.pioneers.regular.length
-    );
+    this.averages.hours.pioneers.regular =
+      Math.ceil(
+        this.totals.hours.pioneers.regular / this.lists.pioneers.regular.length
+      ) || 0;
     // aux pioneer average
-    this.averages.hours.pioneers.aux = Math.ceil(
-      this.totals.hours.pioneers.aux / this.lists.pioneers.aux.length
-    );
+    this.averages.hours.pioneers.aux =
+      Math.ceil(
+        this.totals.hours.pioneers.aux / this.lists.pioneers.aux.length
+      ) || 0;
     // special pioneer average
-    this.averages.hours.pioneers.special = Math.ceil(
-      this.totals.hours.pioneers.special / this.lists.pioneers.special.length
-    );
+    this.averages.hours.pioneers.special =
+      Math.ceil(
+        this.totals.hours.pioneers.special / this.lists.pioneers.special.length
+      ) || 0;
     // unbaptized average
-    this.averages.hours.unbaptized = Math.ceil(
-      this.totals.hours.unbaptized / this.lists.unbaptized.length
-    );
+    this.averages.hours.unbaptized =
+      Math.ceil(this.totals.hours.unbaptized / this.lists.unbaptized.length) ||
+      0;
   };
 
   /**
@@ -159,7 +157,8 @@ class StatCalculator {
     if (monthsIrregular.length < 6) {
       return false;
     }
-
+    // sort
+    monthsIrregular = _.sortBy(monthsIrregular);
     for (let i = monthsIrregular.length - 1; i >= 0; i--) {
       // console.log('=================================');
       // console.log('i', i);
