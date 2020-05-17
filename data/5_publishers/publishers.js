@@ -6,7 +6,10 @@ const { ObjectId } = require('mongodb');
 const visits = require('../4_visits/visits');
 const momentHelpers = require('../../helpers/moment.helpers');
 
-const generateServiceReports = (pioneerStatus, last6Months) => {
+const generateServiceReports = (
+  { pioneerStatus, appointment, baptized, anointed },
+  last6Months
+) => {
   const serviceReports = [];
   switch (pioneerStatus) {
     case 'regular':
@@ -56,6 +59,24 @@ const generateServiceReports = (pioneerStatus, last6Months) => {
       });
       break;
     default:
+      // if not appointed or anointed give chances of being inactive
+      if (!appointment && !anointed) {
+        const inactiveChances = casual.integer(0, 100);
+        if (inactiveChances >= 45 && inactiveChances <= 50) {
+          // inactive publisher
+          last6Months.forEach(monthMoment => {
+            serviceReports.push({
+              month: monthMoment.month(),
+              year: monthMoment.year(),
+              minutes: 0,
+              placements: 0,
+              videos: 0,
+              returnVisits: 0,
+              studies: 0,
+            });
+          });
+        }
+      }
       // regular publisher
       last6Months.forEach(monthMoment => {
         serviceReports.push({
@@ -91,27 +112,26 @@ const generatePublishers = (count = 1) => {
       meta: {},
       serviceReports: null,
     };
-    if (!publisher.appointment) {
-      publisher.baptized = casual.coin_flip;
-    }
+    // coin flip to decide if publisher is baptized
+    publisher.baptized = casual.coin_flip;
     if (publisher.baptized) {
-      if (publisher.male) {
+      if (publisher.gender === 'male') {
         // FIXME: give lower odds
-        publisher.appointment = ['elder', 'ms', null][_.random(0.1)];
+        publisher.appointment = ['elder', 'ms'][_.random(0, 10)] || null;
       }
-      // give publisher low chanced of being annointed
-      const anointedChance = casual.integer(1, 120);
-      if (anointedChance >= 50 && anointedChance <= 60) {
+      // give publisher low chances of being annointed
+      const anointedChance = casual.integer(1, 400);
+      if (anointedChance >= 55 && anointedChance <= 65) {
         publisher.anointed = true;
       }
       // give publisher chances of being a pioneer
-      const pioneerChance = casual.integer(0, 170);
-      if (pioneerChance >= 95 && pioneerChance <= 100) {
+      const pioneerChance = casual.integer(0, 150);
+      if (pioneerChance === 100) {
         publisher.pioneerStatus = 'special';
-      } else if (pioneerChance >= 50 && pioneerChance < 90) {
-        publisher.poineerStatus = 'regular';
-      } else if (pioneerChance >= 35 && pioneerChance <= 45) {
-        publisher.poineerStatus = 'aux';
+      } else if (pioneerChance >= 90 && pioneerChance < 99) {
+        publisher.pioneerStatus = 'regular';
+      } else if (pioneerChance >= 85 && pioneerChance < 90) {
+        publisher.pioneerStatus = 'aux';
       }
     }
     publishers.push(publisher);
@@ -123,10 +143,7 @@ const populatePublishersVisitData = (publishers, visit) => {
   const last6Months = momentHelpers.getLast6Months(visit.startDate);
   return publishers.map(publisher => {
     publisher.visitId = visit._id;
-    publisher.serviceReports = generateServiceReports(
-      publisher.pioneerStatus,
-      last6Months
-    );
+    publisher.serviceReports = generateServiceReports(publisher, last6Months);
     return publisher;
   });
 };
