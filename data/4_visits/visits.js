@@ -44,6 +44,7 @@ const generateCongregationVisit = (congregationId, startDate) => {
   const last6Months = momentHelpers.getLast6Months(startDate);
   const endDate = moment(startDate).isoWeekday('Sunday');
   const visit = {
+    _id: new ObjectId(),
     congregationId,
     startDate: startDate.toDate(),
     endDate: endDate.toDate(),

@@ -162,21 +162,41 @@ visits.forEach(visit => {
 // return console.log(visitMap);
 
 let publishers = []; // all publishers
-
+let foundPre = {};
+let foundPost = {};
 // run through map and generate publishers
 for (let congregation in visitMap) {
   if (visitMap.hasOwnProperty(congregation)) {
-    const visits = visitMap[congregation];
+    const congregationVisits = visitMap[congregation];
     let congregationPublishers = generatePublishers(50);
-    visits.forEach(visit => {
-      // populate publisher random data for this visit
-      const congregationPopulatedPublishers = populatePublishersVisitData(
-        congregationPublishers,
-        visit
+    congregationVisits.forEach(congVisit => {
+      // populate publisher random data for this congVisit
+      let congregationPopulatedPublishers = populatePublishersVisitData(
+        _.cloneDeep(congregationPublishers),
+        congVisit
       );
       publishers = publishers.concat(congregationPopulatedPublishers);
+      // congregationPopulatedPublishers.forEach(pub => {
+      //   if (!foundPre[pub.visitId.toString()]) {
+      //     foundPre[pub.visitId.toString()] = 1;
+      //   } else {
+      //     foundPre[pub.visitId.toString()] += 1;
+      //   }
+      //   publishers.push(pub);
+      // });
+
+      // console.log(publishers.length);
+      // console.log(congregationPublishers[0].visitId);
     });
   }
 }
+
+// publishers.forEach(pub => {
+//   if (!foundPost[pub.visitId.toString()]) {
+//     foundPost[pub.visitId.toString()] = 1;
+//   } else {
+//     foundPost[pub.visitId.toString()] += 1;
+//   }
+// });
 
 module.exports = publishers;
