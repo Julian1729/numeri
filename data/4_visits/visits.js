@@ -50,6 +50,11 @@ const generateCongregationVisit = (congregationId, startDate) => {
     endDate: endDate.toDate(),
     importMethod: 1,
     meetingAttendance: generateMeetingAttendance(last6Months),
+    stats: {
+      averages: {},
+      lists: {},
+      totals: {},
+    },
   };
   return visit;
 };
