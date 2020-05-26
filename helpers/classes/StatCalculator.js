@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const mongoose = require('mongoose');
 
 const { visitModel, publisherModel } = require('../../models');
 
@@ -57,22 +58,26 @@ class StatCalculator {
 
   constructor(visit) {
     if (
-      visit instanceof visitModel !== true &&
+      visit instanceof mongoose.Model !== true &&
       process.env.NODE_ENV !== 'test'
     ) {
       throw new TypeError(
-        'Expecting arguement to be a Visit mongoose model instance.'
+        'Expecting argument to be a Visit mongoose model instance.'
       );
     }
     this.visit = visit;
   }
 
   collect = async () => {
+    // console.log('visit', this.visit.id);
     const publishers = await publisherModel.find({
       visitId: this.visit.id || this.visit._id,
     });
+    // console.log('foundp', publishers);
     if (_.isEmpty(publishers)) {
-      console.error(`No publishers found with visitId ${visitId}`);
+      console.error(
+        `No publishers found with visitId ${this.visit.id || this.visit._id}`
+      );
     }
     this.publishers = publishers;
   };
@@ -199,18 +204,18 @@ class StatCalculator {
         if (_.find(irregular, 12)) {
           // user overlap month
           const overlapMap = {
-            1: 13,
-            2: 14,
-            3: 15,
-            4: 16,
-            5: 17,
-            6: 18,
-            7: 19,
-            8: 20,
-            9: 21,
-            10: 22,
-            11: 23,
-            12: 24,
+            0: 13,
+            1: 14,
+            2: 15,
+            3: 16,
+            4: 17,
+            5: 18,
+            6: 19,
+            7: 20,
+            8: 21,
+            9: 22,
+            10: 23,
+            11: 24,
           };
           return irregular.push(overlapMap[month]);
         } else {

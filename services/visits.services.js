@@ -1,6 +1,9 @@
 const _ = require('lodash');
+const mongoose = require('mongoose');
 
 const Visit = require('../models/Visit.model');
+const Publisher = require('../models/Publisher.model');
+const StatCalculator = require('../helpers/classes/StatCalculator');
 
 exports.findVisits = async (options = {}) => {
   _.defaults(options, {
@@ -61,7 +64,53 @@ exports.getVisit = async (visitId, options = {}) => {
 };
 
 exports.populateStats = async visit => {
-  // find last visit month, and count up to this visit's
-  // month to get the months this visit is looking for
-  // if previous visit doesnt exist, grab last 6 months
+  if (visit instanceof mongoose.Model !== true) {
+    console.log(visit);
+    throw new TypeError('populateStats expecting param to be Visit object');
+  }
+  const statCalc = new StatCalculator(visit);
+  await statCalc.collect();
+  statCalc.calculate();
+  // console.log(
+  //   JSON.stringify(
+  //     {
+  //       totals: statCalc.totals,
+  //       averages: statCalc.averages,
+  //       lists: statCalc.lists,
+  //     },
+  //     null,
+  //     2
+  //   )
+  // );
+  visit.stats.totals = statCalc.totals;
+  visit.stats.averages = statCalc.averages;
+  visit.stats.lists = statCalc.lists;
+  visit.markModified('stats');
+  return visit;
+};
+
+exports.findPublishers = async (visit, options = {}) => {
+  let visitId = visit;
+  if (visit instanceof mongoose.Model) {
+    visitId = visit.id || visit._id;
+  }
+  _.defaults(options, {
+    sort: { lastName: 'asc' },
+    fields: null,
+    skip: null,
+    limit: null,
+    query: {},
+  });
+
+  const dbQuery = Publisher.find({ ...options.query, visitId }, options.fields);
+
+  dbQuery.sort(options.sort);
+
+  dbQuery.skip(options.skip);
+
+  dbQuery.limit(options.limit);
+
+  const publishers = await dbQuery.exec();
+
+  return publishers;
 };

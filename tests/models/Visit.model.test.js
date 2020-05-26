@@ -75,6 +75,7 @@ describe('Visit Model', () => {
       .save()
       .then(visit => {
         expect(visit).to.have.property('_id');
+        console.log('saved visit', JSON.stringify(visit, null, 2));
         done();
       })
       .catch(e => done(e));

@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -38,9 +39,9 @@ const visitSchema = new Schema(
     stats: {
       type: {},
       default: {
-        averages: [],
-        lists: [],
-        totals: [],
+        averages: {},
+        lists: {},
+        totals: {},
       },
     },
   },
@@ -94,6 +95,16 @@ visitSchema.methods.findPreviousVisit = function(fields = null) {
       fields
     )
     .sort({ endDate: -1 });
+};
+
+// TODO: Unit test this method
+// OPTIMIZE: add more in depth validation of stat population
+visitSchema.methods.hasStats = function() {
+  const { averages, lists, totals } = this.stats;
+  if (_.isEmpty(averages) || _.isEmpty(lists) || _.isEmpty(totals)) {
+    return false;
+  }
+  return true;
 };
 
 module.exports = mongoose.model('Visits', visitSchema);

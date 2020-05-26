@@ -27,6 +27,13 @@ exports.getVisit = async (req, res, next) => {
   let previousVisit = null;
   if (findPrev) {
     previousVisit = await visit.findPreviousVisit();
+    if (previousVisit) {
+      // assure previous visit has stats
+      if (!previousVisit.hasStats()) {
+        await visitServices.populateStats(previousVisit);
+        await previousVisit.save();
+      }
+    }
   }
   if (req.query.fields) {
     // convert to plain object
@@ -47,3 +54,22 @@ exports.getVisit = async (req, res, next) => {
     .data('visit', visit)
     .send();
 };
+
+/**
+ * Populate or refresh stat calculation
+ * on a visit
+ */
+exports.getStats = async (req, res, next) => {
+  const populatedVisit = await visitServices.populateStats(res.locals.visit);
+
+  await populatedVisit.save();
+
+  const ApiResponse = res.ApiResponse();
+
+  ApiResponse.data('totals', populatedVisit.stats.totals);
+  ApiResponse.data('averages', populatedVisit.stats.averages);
+  ApiResponse.data('lists', populatedVisit.stats.lists);
+  ApiResponse.send();
+};
+
+exports.getPublishers = async (req, res, next) => {};
