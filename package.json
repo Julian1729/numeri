@@ -9,7 +9,7 @@
     "seed": "DEBUG=mongo-seeding && seed --drop-database -u 'mongodb://localhost:27017/NumeriLocal' ./data"
   },
   "dependencies": {
-    "bcrypt": "^4.0.0",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "chai-asserttype": "^1.0.5",
     "clsx": "^1.1.0",
